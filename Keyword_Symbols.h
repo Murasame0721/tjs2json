@@ -31,10 +31,10 @@ namespace lexical_analysis {
         EVAL,                   // "!" behind of an expression
         BEHIND_IF,              // if (Not "if" in process controlling)
         COMMA,                  // ,
+        SEMICOLON,              // ;
     };
 
     enum Monocular_Operator {
-        SEMICOLON,          // ;
         NOT,                // "!" before of an expression
         BIT_NOT,            // ~
         DECREMENT,          // --
@@ -118,7 +118,9 @@ namespace lexical_analysis {
         LEFT_SQUARE_BRACKET,// [
         RIGHT_SQUARE_BRACKET,// ]
         LEFT_CURLY_BRACKET, // {
-        RIGHT_CURLY_BRACKET // }
+        RIGHT_CURLY_BRACKET, // }
+        OCTET_LEFT_BRACKET, // <%
+        OCTET_RIGHT_BRACKET, // %>
     };
 
     enum Type_Transfer_Operator {
