@@ -94,6 +94,7 @@ enum TjsTokenType {
     kClass,     // class
     kContinue,  // continue
     kDefault,   // default
+    kDelete,    // delete
     kDo,        // do
     kElse,      // else
     kExtends,   // extends
@@ -103,14 +104,21 @@ enum TjsTokenType {
     kGlobal,    // global
     kIf,        // if
     KInContextOf, // incontextof
+    kInfinity,  // infinity
     kInvalidate,    // invalidate
+    kInstanceOf,    // instanceof
+    kInt_,      // int() or (int)
     kIsValid,   // isvalid
+    kNaN,       // NaN
     kNew,       // new
     kNull,      // null
+    kOctet,     // octet
     kOverride,  // override
     kProperty,  // property
+    kReal_,     // real() or (real)
     kReturn,    // return
     kSetter,    // setter()
+    kString_,   // string() or (string)
     kSuper,     // super
     kSwitch,    // switch
     kThis,      // this
@@ -120,6 +128,19 @@ enum TjsTokenType {
     kVar,       // var
     kWhile,     // while
     kWith,      // with
+
+    // reserved word
+    kConst,     // const
+    kExport,    // export
+    kEnum,      // enum
+    kFinally,   // finally
+    kImport,    // import
+    kIn,        // in
+    kProtected, // protected
+    kPrivate,   // private
+    kPublic,    // public
+    kSynchronized,  // synchronized
+    kStatic,    // static
 
     // identifier
     kIdentifier,    // ${identifier}
