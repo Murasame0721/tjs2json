@@ -35,6 +35,8 @@ enum TjsTokenType {
     kBackslash, // \
     kVerticalBar,   // |
     kTilde,     // ~
+    kQuote,     // '
+    kDoubleQuote,   // "
 
     // brackets
     kLeftParen,     // (
