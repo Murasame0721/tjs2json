@@ -4,7 +4,7 @@ project(tjs2json CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 
-add_library(Lexical_Analysis TjsToken.cpp TjsToken.h TjsLexicalAnalyzer.cpp TjsLexicalAnalyzer.h)
+add_library(Lexical_Analysis TjsToken.cpp TjsToken.h TjsLexicalAnalyzer.cpp TjsLexicalAnalyzer.h AbstractDfa.cpp)
 
 # Test
 
