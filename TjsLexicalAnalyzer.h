@@ -16,18 +16,35 @@ class AbstractDfa {
     using TransitionKey = std::pair<State, Input>;
     using TransitionTable = std::map<TransitionKey, State>;
 
-    State transition(State current_state, Input input) const;
+    AbstractDfa(State start_state, State reject_state):
+                start_state_(start_state), reject_state_(reject_state) {}
 
-    virtual State start_state() const = 0;
-    virtual State accept_state() const = 0;
-    virtual State reject_state() const = 0;
+    [[nodiscard]] virtual bool accept() const = 0;
+    [[nodiscard]] virtual bool reject() const = 0;
+
+    void transition(Input input) const;
+    // in some case, you can override this function to implement a more efficient algorithm.
+
+    [[nodiscard]] State get_start_state() const;
+    [[nodiscard]] State get_reject_state() const;
+    [[nodiscard]] State get_state();
 
   protected:
     TransitionTable transition_table_;
+    State current_state_;
+    State start_state_;
+    State reject_state_;
+};
+
+class TjsLexicalDfa: public AbstractDfa<int, char> {
+
+};
+
+class TjsIdentifierDfa: public AbstractDfa<int, char> {
+
 };
 
 class TjsLexicalAnalyzer {
-
 };
 
 } // tjs_analysis

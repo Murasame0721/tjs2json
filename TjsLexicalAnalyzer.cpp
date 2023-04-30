@@ -6,16 +6,31 @@
 
 namespace tjs_analysis {
 
+// AbstractDfa
 template <typename State, typename Input>
-State AbstractDfa<State,Input>::transition(State current_state,Input input) const {
-    TransitionKey key = std::make_pair(current_state, input);
+void AbstractDfa<State,Input>::transition(Input input) const {
+    TransitionKey key = std::make_pair(current_state_, input);
     auto it = transition_table_.find(key);
 
     if (it != transition_table_.end()) {
-        return it->second;
+        current_state_ = it->second;
     } else {
-        return reject_state();
+        current_state_ = reject_state_;
     }
 }
+template <typename State, typename Input>
+State AbstractDfa<State,Input>::get_state() {
+    return current_state_;
+}
+template <typename State, typename Input>
+State AbstractDfa<State,Input>::get_start_state() const {
+    return start_state_;
+}
+template <typename State, typename Input>
+State AbstractDfa<State,Input>::get_reject_state() const {
+    return reject_state_;
+}
+
+
 
 } // tjs_analysis
