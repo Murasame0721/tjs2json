@@ -7,7 +7,13 @@
 
 #include <utility>
 #include <map>
+#include <memory>
+#include <variant>
 #include "AbstractDfa.h"
+#include "TjsToken.h"
+
+using std::variant;
+using std::unique_ptr;
 
 namespace tjs_analysis {
 
@@ -67,9 +73,10 @@ enum LexicalDfaState {
     // start with letter, or full-width letter, or _,
     // and then followed by a sequence of letter, or full-width letter, or _, or digit
     // first character cannot be digit
-    // in DFA `TjsIsIdentifierDfa`, we will not distinguish identifier and keyword
-    // because we can do this in `TjsIsIdentifierDfa`
-};
+    // in DFA `TjsIsIdentifierOrKeyWord`, we will not distinguish identifier and keyword
+    // because we can do this in `TjsIsIdentifierOrKeyWord`
+
+};  // enum LexicalDfaState
 
 inline bool UnicodeIsInRange(char32_t ch, char32_t lower, char32_t upper) {
     return ch >= lower && ch <= upper;
@@ -94,7 +101,7 @@ class TjsLexicalDfa: public AbstractDfa<LexicalDfaState, char32_t> {
     [[nodiscard]] bool IsIntermediateState(LexicalDfaState state) const;
 
     // single character symbols
-    const char32_t kSingleCharacterSymbolChar[24] {
+    static constexpr char32_t kSingleCharacterSymbolChar[24] {
         // always make it same to `enum TjsTokenType` in `TjsToken.h`
             '!', '#', '$', '%', '&',
             '*', '+', ',', '-', '.',
@@ -105,7 +112,7 @@ class TjsLexicalDfa: public AbstractDfa<LexicalDfaState, char32_t> {
     [[nodiscard]] bool IsSingleCharacterSymbol(char32_t input) const;
 
     // brackets
-    const char32_t kBracketChar[6] {
+    static constexpr char32_t kBracketChar[6] {
             // always make it same to `enum TjsTokenType` in `TjsToken.h`
             '(', ')', '[', ']', '{', '}'
     };
@@ -117,11 +124,50 @@ class TjsLexicalDfa: public AbstractDfa<LexicalDfaState, char32_t> {
         char32_t input
         );
 
+};  // class TjsLexicalDfa
+
+struct TjdIdentifierOrKeyword {
+    bool is_identifier;
+    unique_ptr<TjsIdentifierToken> tjs_identifier_token_value;
+    unique_ptr<TjsNoAttributeToken> tjs_no_attribute_token_value;
+};
+const static std::u32string kTjsKeywords[] = {
+        // keep it same to `enum TjsTokenType` in `TjsToken.h`
+        U"break", U"case", U"catch", U"class",
+        U"continue", U"default", U"delete", U"do",
+        U"else", U"extends", U"for", U"function",
+        U"getter", U"global",U"if", U"incontextof",
+        U"infinity",U"invalidate", U"instanceof", U"int",
+        U"isvalid",U"NaN", U"new", U"null",
+        U"octet",U"override", U"property", U"real",
+        U"return",U"setter", U"string", U"super",
+        U"switch",U"this", U"throw", U"try",
+        U"typeof",U"var", U"void", U"while",
+        U"with",
+};
+const static TjsTokenType kTjsKeywordsMapper[] = {
+        // keep it same to above
+        kBreak, kCase, kCatch, kClass,
+        kContinue, kDefault, kDelete, kDo,
+        kElse, kExtends, kFor, kFunction,
+        kGetter, kGlobal, kIf, KInContextOf,
+        kInfinity, kInvalidate, kInstanceOf,
+        kInt_, kIsValid,kNaN, kNew, kNull,
+        kOctet,kOverride, kProperty, kReal_,
+        kReturn,kSetter, kString_, kSuper,
+        kSwitch,kThis, kThrow, kTry,
+        kTypeOf,kVar, kVoid, kWhile,
+        kWith,
 };
 
-class TjsIsIdentifierDfa: public AbstractDfa<int, char> {
-
+const static std::u32string kTjsReservedWord[] = {
+        // keep it same to `enum TjsTokenType` in `TjsToken.h`
+        U"const", U"export", U"enum", U"finally",
+        U"import", U"in", U"protected", U"private",
+        U"public", U"synchronized", U"static"
 };
+
+TjdIdentifierOrKeyword TjsIsIdentifierOrKeyWord(const std::u32string& input);
 
 class TjsLexicalAnalyzer {
 };

@@ -128,6 +128,7 @@ enum TjsTokenType {
     kTry,       // try
     kTypeOf,    // typeof
     kVar,       // var
+    // kVoid,      // void (in constant)
     kWhile,     // while
     kWith,      // with
 
@@ -179,22 +180,22 @@ class TjsRealToken : public TjsToken<double> {
     explicit TjsRealToken(double attribute) : TjsToken(kReal, attribute) {}
     double getAttribute() final;
 };
-class TjsStringToken : public TjsToken<std::string> {
+class TjsStringToken : public TjsToken<std::u32string> {
   public:
-    explicit TjsStringToken(std::string attribute) :
+    explicit TjsStringToken(std::u32string attribute) :
                             TjsToken(kString, std::move(attribute)) {}
-    std::string getAttribute() final;
+    std::u32string getAttribute() final;
 };
 class TjsBooleanToken : public TjsToken<bool> {
   public:
     explicit TjsBooleanToken(bool attribute) : TjsToken(kBoolean_, attribute) {}
     bool getAttribute() final;
 };
-class TjsIdentifierToken : public TjsToken<std::string> {
+class TjsIdentifierToken : public TjsToken<std::u32string> {
   public:
-    explicit TjsIdentifierToken(std::string attribute) :
+    explicit TjsIdentifierToken(std::u32string attribute) :
                             TjsToken(kIdentifier, std::move(attribute)) {}
-    std::string getAttribute() final;
+    std::u32string getAttribute() final;
 };
 
 

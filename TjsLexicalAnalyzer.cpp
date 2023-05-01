@@ -227,4 +227,21 @@ LexicalDfaState TjsLexicalDfa::TransitionHandle_kNotDecimalOrFloat(char32_t inpu
     return kReject;
 }
 
+TjdIdentifierOrKeyword TjsIsIdentifierOrKeyWord(const std::u32string& input) {
+    using std::make_unique;
+    auto identifier_ptr =  make_unique<TjsIdentifierToken>(input);
+    TjdIdentifierOrKeyword result = {true, nullptr, nullptr};
+    for (int i = 0; i < sizeof(kTjsKeywords) / sizeof(kTjsKeywords[0]); ++i) {
+        if (input == kTjsKeywords[i]) {
+            result.is_identifier = false;
+            auto keyword = make_unique<TjsNoAttributeToken>(kTjsKeywordsMapper[i]);
+            result.tjs_no_attribute_token_value = std::move(keyword);
+            return result;
+        }
+    }
+    auto identifier = make_unique<TjsIdentifierToken>(input);
+    result.tjs_identifier_token_value = std::move(identifier);
+    return result;
+}
+
 } // tjs_analysis
