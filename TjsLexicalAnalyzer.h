@@ -126,11 +126,6 @@ class TjsLexicalDfa: public AbstractDfa<LexicalDfaState, char32_t> {
 
 };  // class TjsLexicalDfa
 
-struct TjdIdentifierOrKeyword {
-    bool is_identifier;
-    unique_ptr<TjsIdentifierToken> tjs_identifier_token_value;
-    unique_ptr<TjsNoAttributeToken> tjs_no_attribute_token_value;
-};
 const static std::u32string kTjsKeywords[] = {
         // keep it same to `enum TjsTokenType` in `TjsToken.h`
         U"break", U"case", U"catch", U"class",
@@ -167,7 +162,7 @@ const static std::u32string kTjsReservedWord[] = {
         U"public", U"synchronized", U"static"
 };
 
-TjdIdentifierOrKeyword TjsIsIdentifierOrKeyWord(const std::u32string& input);
+TjdUnknownToken TjsIsIdentifierOrKeyWord(const std::u32string& input);
 
 class TjsLexicalAnalyzer {
 };

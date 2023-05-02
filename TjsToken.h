@@ -5,6 +5,10 @@
 #ifndef TJS2JSON_TJS_TOKEN_H
 #define TJS2JSON_TJS_TOKEN_H
 
+#include "AbstractDfa.h"
+#include <variant>
+#include <memory>
+#include <map>
 #include <string>
 #include <cstdint>
 #include <utility>
@@ -198,7 +202,11 @@ class TjsIdentifierToken : public TjsToken<std::u32string> {
     std::u32string getAttribute() final;
 };
 
-
+struct TjdUnknownToken {
+    bool is_identifier;
+    std::unique_ptr<TjsIdentifierToken> tjs_identifier_token_value;
+    std::unique_ptr<TjsNoAttributeToken> tjs_no_attribute_token_value;
+};
 } // tjs_analysis
 
 #endif //TJS2JSON_TJS_TOKEN_H

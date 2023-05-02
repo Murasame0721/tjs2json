@@ -6,6 +6,7 @@
 #include <locale>
 #include <algorithm>
 #include "TjsLexicalAnalyzer.h"
+#include "TjsToken.h"
 
 namespace tjs_analysis {
 bool IsSpaceChar(char32_t ch) {
@@ -227,10 +228,10 @@ LexicalDfaState TjsLexicalDfa::TransitionHandle_kNotDecimalOrFloat(char32_t inpu
     return kReject;
 }
 
-TjdIdentifierOrKeyword TjsIsIdentifierOrKeyWord(const std::u32string& input) {
+TjdUnknownToken TjsIsIdentifierOrKeyWord(const std::u32string& input) {
     using std::make_unique;
     auto identifier_ptr =  make_unique<TjsIdentifierToken>(input);
-    TjdIdentifierOrKeyword result = {true, nullptr, nullptr};
+    TjdUnknownToken result = {true, nullptr, nullptr};
     for (int i = 0; i < sizeof(kTjsKeywords) / sizeof(kTjsKeywords[0]); ++i) {
         if (input == kTjsKeywords[i]) {
             result.is_identifier = false;
