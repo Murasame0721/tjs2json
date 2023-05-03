@@ -30,7 +30,7 @@ bool TjsLexicalDfa::IsIntermediateState(LexicalDfaState state) const {
                        });
 }
 
-bool TjsLexicalDfa::IsSingleCharacterSymbol(char32_t input) const {
+bool TjsLexicalDfa::IsSingleCharacterSymbol(char32_t input) {
     return std::any_of(std::cbegin(kSingleCharacterSymbolChar),
                        std::cend(kSingleCharacterSymbolChar),
                        [input](char symbol) {
@@ -38,7 +38,7 @@ bool TjsLexicalDfa::IsSingleCharacterSymbol(char32_t input) const {
                        });
 }
 
-bool TjsLexicalDfa::IsBracket(char32_t input) const {
+bool TjsLexicalDfa::IsBracket(char32_t input) {
     return std::any_of(std::cbegin(kBracketChar),
                        std::cend(kBracketChar),
                        [input](char bracket) {
@@ -51,7 +51,7 @@ bool TjsLexicalDfa::IsHexChar(char32_t input) {
            (input >= 'A' && input <= 'F');
 }
 
-bool TjsLexicalDfa::MayBeIdentifierOrKeyword(char32_t ch) const {
+bool TjsLexicalDfa::MayBeIdentifierOrKeyword(char32_t ch) {
     if (IsSingleCharacterSymbol(ch))
         return false;
     if (IsBracket(ch))
@@ -178,7 +178,7 @@ void TjsLexicalDfa::set_state(LexicalDfaState state) {
     current_state_ = state;
 }
 
-LexicalDfaState TjsLexicalDfa::TransitionHandle_kStart(char32_t input) const {
+LexicalDfaState TjsLexicalDfa::TransitionHandle_kStart(char32_t input) {
     // when starter is a blank:
     if (IsSpaceChar(input)) {
         return kBlank;
@@ -249,21 +249,69 @@ TjdUnknownToken TjsIsIdentifierOrKeyWord(const u32string& input) {
     return result;
 }
 
-TjsLexicalAnalyzer::TjsLexicalAnalyzer(const u32string& code) {
+TjsTokenType TjsIsSingleCharacterSymbol(const u32string& input) {
+    for (auto i = 0; i < sizeof(kTjsSymbolString) / sizeof(kTjsSymbolString[0]); ++i) {
+        if (input == kTjsSymbolString[i]) {
+            return kTjsSymbolMapper[i];
+        }
+    }
+    throw std::invalid_argument("input is not a valid symbol");
+}
 
+TjsLexicalAnalyzer::TjsLexicalAnalyzer(const u32string& code) {
+    code_lines_ = SplitCodeToLines(code);
+}
+
+inline char32_t GetCharInString (const u32string& str, size_t index) {
+    if (index >= str.size()) throw std::out_of_range("index out of range");
+    return str[index];
+}
+
+unique_ptr<RunResult> TjsLexicalAnalyzer::Run() {
+    using std::make_unique;
+
+    auto result = make_unique<RunResult>();    // Initialize result.
+    LexicalDfaState current_state = kStart;
+
+    // Initialize line index.
+    const size_t kMaxLineIndex = code_lines_->size() - 1;
+    for (size_t reading_line_index = 0; reading_line_index <= kMaxLineIndex;
+         reading_line_index++) {
+        auto reading_line = &(*code_lines_)[reading_line_index];
+        auto line_result = RunOneLine(*reading_line);
+        result->tokens->splice(result->tokens->end(), *line_result->tokens);
+        result->errors->splice(result->errors->end(), *line_result->errors);
+    }
+    return result;
+}
+
+unique_ptr<RunResult> TjsLexicalAnalyzer::RunOneLine(const u32string& line) {
+    using std::make_unique;
+    unique_ptr<RunResult> result = make_unique<RunResult>();
+    dfa_.set_state(kStart); // Initialize DFA state.
+
+    // Initialize column index.
+    const size_t kMaxColumnIndex = line.size() - 1;
+    for (size_t reading_column_index = 0; reading_column_index <= kMaxColumnIndex;
+         reading_column_index++) {
+        // TODO: Implement this.
+
+    }
+
+    return result;
 }
 
 unique_ptr<vector<u32string>> SplitCodeToLines(const u32string& code) {
     auto result = std::make_unique<vector<u32string>>();
     u32string line;
-    for (auto c : code) {
-        if (c == '\n' || c == '\r') {
+    for (auto ch : code) {
+        if (ch == '\n' || ch == '\r') {
             if (line.empty()) continue;
             result->push_back(line);
             line.clear();
         }
         else {
-            line.push_back(c);
+            line.push_back(ch);
         }
     }
     if (!line.empty()) {

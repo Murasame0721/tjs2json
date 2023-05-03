@@ -9,6 +9,7 @@
 #include <map>
 #include <memory>
 #include <variant>
+#include <list>
 #include "AbstractDfa.h"
 #include "TjsToken.h"
 
@@ -95,7 +96,7 @@ class TjsLexicalDfa: public AbstractDfa<LexicalDfaState, char32_t> {
     void set_state(LexicalDfaState new_state);
 
   private:
-    [[nodiscard]] bool MayBeIdentifierOrKeyword(char32_t ch) const;
+    [[nodiscard]] static bool MayBeIdentifierOrKeyword(char32_t ch) ;
 
     const LexicalDfaState kIntermediateStates[1] {
         kNotDecimalOrFloat,
@@ -112,17 +113,17 @@ class TjsLexicalDfa: public AbstractDfa<LexicalDfaState, char32_t> {
             '?', ';', '@', '^', '\\',
             '|', '~', '\'', '\"'
     };
-    [[nodiscard]] bool IsSingleCharacterSymbol(char32_t input) const;
+    [[nodiscard]] static bool IsSingleCharacterSymbol(char32_t input) ;
 
     // brackets
     static constexpr char32_t kBracketChar[6] {
             // always make it same to `enum TjsTokenType` in `TjsToken.h`
             '(', ')', '[', ']', '{', '}'
     };
-    [[nodiscard]] bool IsBracket(char32_t input) const;
+    [[nodiscard]] static bool IsBracket(char32_t input) ;
     static bool IsHexChar(char32_t input);
 
-    [[nodiscard]] LexicalDfaState TransitionHandle_kStart(char32_t input) const;
+    [[nodiscard]] static LexicalDfaState TransitionHandle_kStart(char32_t input) ;
     [[nodiscard]] static LexicalDfaState TransitionHandle_kNotDecimalOrFloat(
         char32_t input
         );
@@ -166,7 +167,7 @@ const static TjsTokenType kTjsKeywordsMapper[] = {
         kWith,
 };
 
-TjsNoAttributeToken TjsIsSingleCharacterSymbol(const u32string& input);
+TjsTokenType TjsIsSingleCharacterSymbol(const u32string& input);
 const static u32string kTjsSymbolString[] = {
         // keep it same to `enum TjsTokenType` in `TjsToken.h`
 
@@ -224,9 +225,14 @@ const static TjsTokenType kTjsSymbolMapper[] = {
 };
 
 struct TjsLexicalError {
-    int row;
-    int col;
+    size_t row;
+    size_t col;
     std::string message;
+};
+
+struct RunResult {
+    unique_ptr<std::list<TjdUnknownToken>> tokens;
+    unique_ptr<std::list<TjsLexicalError>> errors;
 };
 
 class TjsLexicalAnalyzer {
@@ -236,17 +242,15 @@ class TjsLexicalAnalyzer {
     unsigned int col{0};
     unique_ptr<vector<u32string>> code_lines_;
     unique_ptr<vector<TjsLexicalError>> errors;
+    unique_ptr<RunResult> RunOneLine(const u32string& line);
   public:
-    struct RunResult {
-        unique_ptr<vector<TjdUnknownToken>> tokens;
-        vector<TjsLexicalError> errors;
-    };
     explicit TjsLexicalAnalyzer(const u32string& code);
     unique_ptr<RunResult> Run();
 };
 
-inline char32_t get_char_in_string (const u32string& str, size_t index);
+inline char32_t GetCharInString (const u32string& str, size_t index);
 unique_ptr<vector<u32string>> SplitCodeToLines(const u32string& code);
+
 
 } // tjs_analysis
 
