@@ -36,7 +36,7 @@ enum TjsTokenType {
     kSemicolon, // ;
     kAt,        // @
     kCaret,     // ^    xor
-    kBackslash, // \
+    kBackslash, // '\'
     kVerticalBar,   // |
     kTilde,     // ~
     kQuote,     // '
@@ -151,6 +151,9 @@ enum TjsTokenType {
 
     // identifier
     kIdentifier,    // ${identifier}
+
+    // blank
+    kBlankChar,     // ''
 
 };  // enum TjsTokenType
 
