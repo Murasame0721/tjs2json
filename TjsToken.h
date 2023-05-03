@@ -78,7 +78,7 @@ enum TjsTokenType {
     kAndAssign,         // &&=
     kOrAssign,          // ||=
     kArguments,         // ...
-    kExchange,          // <->
+    kSwap,          // <->
     kLeftShiftAssign,   // <<=
     kRightShiftAssign,  // >>=
     kUnsignedRightShift,// >>>

@@ -166,6 +166,63 @@ const static TjsTokenType kTjsKeywordsMapper[] = {
         kWith,
 };
 
+TjsNoAttributeToken TjsIsSingleCharacterSymbol(const u32string& input);
+const static u32string kTjsSymbolString[] = {
+        // keep it same to `enum TjsTokenType` in `TjsToken.h`
+
+        // single character symbols
+        U"!", U"#", U"$", U"%",
+        U"&", U"*", U"+", U",",
+        U"-", U".", U"/", U":",
+        U"<", U"=", U">", U"?",
+        U";", U"@", U"^", U"\\",
+        U"|", U"~", U"\'", U"\"",
+
+        // brackets
+        U"(", U")", U"[", U"]",
+        U"{", U"}",
+
+        // double character symbols
+        U"!=", U"%=", U"*=", U"+=",
+        U"-=", U"/=", U"\\=", U"^=",
+        U"|=", U"&=", U"++", U"--",
+        U"<<", U">>", U"<=", U">=",
+        U"==", U"&&", U"||", U"%[",
+
+        // triple character symbols
+        U"!==", U"===", U"&&=", U"||=",
+        U"...", U"<->", U"<<=", U">>=",
+        U">>>",
+
+        // longer symbols
+        U">>>="
+};
+const static TjsTokenType kTjsSymbolMapper[] = {
+        // keep it same to above
+
+        kPunct, kHashtag, kDollar, kPercent,
+        kAmpersand, kAsterisk, kPlus, kComma,
+        kMinus, kDot, kSlash, kColon,
+        kLess, kEqual, kGreater, kQuestion,
+        kSemicolon, kAt, kCaret, kBackslash,
+        kVerticalBar, kTilde, kQuote, kDoubleQuote,
+
+        kLeftParen, kRightParen, kLeftBracket, kRightBracket,
+        kLeftBrace, kRightBrace,
+
+        kNotEqual, kModAssign, kMulAssign, kAddAssign,
+        kSubAssign, kDivAssign, kEvenlyDivAssign, kXorAssign,
+        kBitwiseOrAssign, kBitwiseAndAssign, kSelfPlus, kSelfMinus,
+        kLeftShift, kRightShift, kLessEqual, kGreaterEqual,
+        kEqualEqual, kAnd, kOr, kDictionaryStart,
+
+        kNotStrictEqual, kStrictEqual, kAndAssign, kOrAssign,
+        kArguments, kSwap, kLeftShiftAssign, kRightShiftAssign,
+        kUnsignedRightShift,
+
+        kUnsignedRightShiftAssign
+};
+
 struct TjsLexicalError {
     int row;
     int col;
@@ -177,17 +234,18 @@ class TjsLexicalAnalyzer {
     TjsLexicalDfa dfa_{};
     unsigned int row{1};
     unsigned int col{0};
-    vector<u32string> code_lines;
-    vector<TjsLexicalError> errors;
+    unique_ptr<vector<u32string>> code_lines_;
+    unique_ptr<vector<TjsLexicalError>> errors;
+  public:
     struct RunResult {
-        vector<TjdUnknownToken> tokens;
+        unique_ptr<vector<TjdUnknownToken>> tokens;
         vector<TjsLexicalError> errors;
     };
-  public:
-    TjsLexicalAnalyzer(const u32string& code);
+    explicit TjsLexicalAnalyzer(const u32string& code);
     unique_ptr<RunResult> Run();
 };
 
+inline char32_t get_char_in_string (const u32string& str, size_t index);
 unique_ptr<vector<u32string>> SplitCodeToLines(const u32string& code);
 
 } // tjs_analysis
