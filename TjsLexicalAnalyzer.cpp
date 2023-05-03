@@ -174,6 +174,10 @@ LexicalDfaState TjsLexicalDfa::Transition(LexicalDfaState state, char32_t input)
     return kReject;
 }
 
+void TjsLexicalDfa::set_state(LexicalDfaState state) {
+    current_state_ = state;
+}
+
 LexicalDfaState TjsLexicalDfa::TransitionHandle_kStart(char32_t input) const {
     // when starter is a blank:
     if (IsSpaceChar(input)) {
@@ -228,7 +232,7 @@ LexicalDfaState TjsLexicalDfa::TransitionHandle_kNotDecimalOrFloat(char32_t inpu
     return kReject;
 }
 
-TjdUnknownToken TjsIsIdentifierOrKeyWord(const std::u32string& input) {
+TjdUnknownToken TjsIsIdentifierOrKeyWord(const u32string& input) {
     using std::make_unique;
     auto identifier_ptr =  make_unique<TjsIdentifierToken>(input);
     TjdUnknownToken result = {true, nullptr, nullptr};
@@ -242,6 +246,29 @@ TjdUnknownToken TjsIsIdentifierOrKeyWord(const std::u32string& input) {
     }
     auto identifier = make_unique<TjsIdentifierToken>(input);
     result.tjs_identifier_token_value = std::move(identifier);
+    return result;
+}
+
+TjsLexicalAnalyzer::TjsLexicalAnalyzer(const u32string& code) {
+
+}
+
+unique_ptr<vector<u32string>> SplitCodeToLines(const u32string& code) {
+    auto result = std::make_unique<vector<u32string>>();
+    u32string line;
+    for (auto c : code) {
+        if (c == '\n' || c == '\r') {
+            if (line.empty()) continue;
+            result->push_back(line);
+            line.clear();
+        }
+        else {
+            line.push_back(c);
+        }
+    }
+    if (!line.empty()) {
+        result->push_back(line);
+    }
     return result;
 }
 

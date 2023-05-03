@@ -14,6 +14,8 @@
 
 using std::variant;
 using std::unique_ptr;
+using std::vector;
+using std::u32string;
 
 namespace tjs_analysis {
 
@@ -90,6 +92,7 @@ class TjsLexicalDfa: public AbstractDfa<LexicalDfaState, char32_t> {
     [[nodiscard]] bool Accept() const override;
     [[nodiscard]] bool Reject() const override;
     [[nodiscard]] LexicalDfaState Transition(LexicalDfaState state, char32_t input) const final;
+    void set_state(LexicalDfaState new_state);
 
   private:
     [[nodiscard]] bool MayBeIdentifierOrKeyword(char32_t ch) const;
@@ -126,7 +129,9 @@ class TjsLexicalDfa: public AbstractDfa<LexicalDfaState, char32_t> {
 
 };  // class TjsLexicalDfa
 
-const static std::u32string kTjsKeywords[] = {
+// map u32string to TjsTokenType
+TjdUnknownToken TjsIsIdentifierOrKeyWord(const u32string& input);
+const static u32string kTjsKeywords[] = {
         // keep it same to `enum TjsTokenType` in `TjsToken.h`
         U"break", U"case", U"catch", U"class",
         U"continue", U"default", U"delete", U"do",
@@ -139,6 +144,12 @@ const static std::u32string kTjsKeywords[] = {
         U"switch",U"this", U"throw", U"try",
         U"typeof",U"var", U"void", U"while",
         U"with",
+};
+const static u32string kTjsReservedWord[] = {
+        // keep it same to `enum TjsTokenType` in `TjsToken.h`
+        U"const", U"export", U"enum", U"finally",
+        U"import", U"in", U"protected", U"private",
+        U"public", U"synchronized", U"static"
 };
 const static TjsTokenType kTjsKeywordsMapper[] = {
         // keep it same to above
@@ -155,17 +166,29 @@ const static TjsTokenType kTjsKeywordsMapper[] = {
         kWith,
 };
 
-const static std::u32string kTjsReservedWord[] = {
-        // keep it same to `enum TjsTokenType` in `TjsToken.h`
-        U"const", U"export", U"enum", U"finally",
-        U"import", U"in", U"protected", U"private",
-        U"public", U"synchronized", U"static"
+struct TjsLexicalError {
+    int row;
+    int col;
+    std::string message;
 };
-
-TjdUnknownToken TjsIsIdentifierOrKeyWord(const std::u32string& input);
 
 class TjsLexicalAnalyzer {
+  private:
+    TjsLexicalDfa dfa_{};
+    unsigned int row{1};
+    unsigned int col{0};
+    vector<u32string> code_lines;
+    vector<TjsLexicalError> errors;
+    struct RunResult {
+        vector<TjdUnknownToken> tokens;
+        vector<TjsLexicalError> errors;
+    };
+  public:
+    TjsLexicalAnalyzer(const u32string& code);
+    unique_ptr<RunResult> Run();
 };
+
+unique_ptr<vector<u32string>> SplitCodeToLines(const u32string& code);
 
 } // tjs_analysis
 
