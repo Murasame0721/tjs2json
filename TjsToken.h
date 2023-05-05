@@ -5,7 +5,6 @@
 #ifndef TJS2JSON_TJS_TOKEN_H
 #define TJS2JSON_TJS_TOKEN_H
 
-#include "AbstractDfa.h"
 #include <variant>
 #include <memory>
 #include <map>
@@ -157,73 +156,6 @@ enum TjsTokenType {
 
 };  // enum TjsTokenType
 
-template<typename T>
-class TjsToken {
-  private:
-    TjsTokenType type_;
-  protected:
-    T attribute_;
-  public:
-    TjsToken(TjsTokenType type, T attribute) : type_(type), attribute_(std::move(attribute)) {}
-
-    TjsTokenType getType();
-
-    virtual T getAttribute() = 0;
-
-    static constexpr bool *NO_ATTRIBUTE = nullptr; // for no attribute
-};
-
-class TjsNoAttributeToken : public TjsToken<const bool *> {
-  public:
-    explicit TjsNoAttributeToken(TjsTokenType type) :
-            TjsToken(type, NO_ATTRIBUTE) {}
-
-  private:
-    const bool *getAttribute() final;
-};
-
-class TjsIntegerToken : public TjsToken<int64_t> {
-  public:
-    explicit TjsIntegerToken(int64_t attribute) : TjsToken(kInteger, attribute) {}
-
-    int64_t getAttribute() final;
-};
-
-class TjsRealToken : public TjsToken<double> {
-  public:
-    explicit TjsRealToken(double attribute) : TjsToken(kReal, attribute) {}
-
-    double getAttribute() final;
-};
-
-class TjsStringToken : public TjsToken<std::u32string> {
-  public:
-    explicit TjsStringToken(std::u32string attribute) :
-            TjsToken(kString, std::move(attribute)) {}
-
-    std::u32string getAttribute() final;
-};
-
-class TjsBooleanToken : public TjsToken<bool> {
-  public:
-    explicit TjsBooleanToken(bool attribute) : TjsToken(kBoolean_, attribute) {}
-
-    bool getAttribute() final;
-};
-
-class TjsIdentifierToken : public TjsToken<std::u32string> {
-  public:
-    explicit TjsIdentifierToken(std::u32string attribute) :
-            TjsToken(kIdentifier, std::move(attribute)) {}
-
-    std::u32string getAttribute() final;
-};
-
-struct TjdUnknownToken {
-    bool is_identifier;
-    std::unique_ptr<TjsIdentifierToken> tjs_identifier_token_value;
-    std::unique_ptr<TjsNoAttributeToken> tjs_no_attribute_token_value;
-};
 } // tjs_analysis
 
 #endif //TJS2JSON_TJS_TOKEN_H
